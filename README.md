@@ -53,52 +53,62 @@ pip install -r requirements.txt
 ## Примеры использования
 
 ### Встраивание текста в изображение (LSB)
+Встраивание:
 ```bash
-python src/st3g4n0_lsb_img.py encode -i input_data/img.png -o output_data/stego.png -m input_data/small_secret.txt
+python src/st3g4n0_lsb_img.py encode -i input_data/img.png -o output_data/lsb_img/after.png -m input_data/small_secret.txt
 ```
 
 Извлечение:
 ```bash
-python src/st3g4n0_lsb_img.py decode -i output_data/stego.png -o output_data/result.txt
+python src/st3g4n0_lsb_img.py decode -i output_data/lsb_img/after.png -o output_data/resuls_lsb_img_big_secret.txt
 ```
 
 Для примера.
 1. Картинка ДО:
-<img width="3840" height="2160" alt="img" src="https://github.com/user-attachments/assets/c474e738-a401-4379-8429-e5f73eb26fb3" />
+<p align="center"> <img width="800" src="https://github.com/Dzagcoffee/st3g4n0/blob/main/output_data/lsb_img/before.png"/> </p>
+3. Картинка ПОСЛЕ:
+<p align="center"> <img width="800" src="https://github.com/Dzagcoffee/st3g4n0/blob/main/output_data/lsb_img/after.png"/> </p>
 
-
-2. Картинка ПОСЛЕ:
-<img width="3840" height="2160" alt="out" src="https://github.com/user-attachments/assets/636c3759-3d8e-42ce-94a8-5d9c5717fd87" />
-
-3. Встроенное и декодированные сообщение: Ask, and it shall be given you; seek, and ye shall find; knock, and it shall be opened unto you.
+4. Встроенное и декодированные сообщение: (файл resuls_lsb_img_big_secret.txt)
+5. Отличия картинок (тепловая карта): <p align="center"> <img width="800" src="https://github.com/Dzagcoffee/st3g4n0/blob/main/output_data/lsb_img/diff_heatmap.png"/> </p>
 
 ---
 
 ### Скрытие данных через DCT
+Встраивание:
 ```bash
-python src/st3g4n0_dct_img.py encode -i input_data/img.png -o output_data/stego_dct.png -m input_data/small_secret.txt
-python src/st3g4n0_dct_img.py decode -i output_data/stego_dct.png -o output_data/result.txt
+python src/st3g4n0_lsb_img.py encode -i input_data/img.png -o output_data/dct_gs_img/after.png -m input_data/big_secret.txt
+```
+
+Извлечение:
+```bash
+python src/st3g4n0_lsb_img.py decode -i output_data/dct_gs_img/after.png -o output_data/resuls_dct_img_big_secret.txt
 ```
 
 Для примера.
 1. Картинка ДО:
-<img width="3840" height="2160" alt="gs_img" src="https://github.com/user-attachments/assets/dda06e6f-f226-471a-8952-d8abc5533753" />
+<p align="center"> <img width="800" src="https://github.com/Dzagcoffee/st3g4n0/blob/main/output_data/dct_gs_img/before.png"/> </p>
+3. Картинка ПОСЛЕ:
+<p align="center"> <img width="800" src="https://github.com/Dzagcoffee/st3g4n0/blob/main/output_data/dct_gs_img/after.png"/> </p>
 
-2. Картинка ПОСЛЕ:
-<img width="3840" height="2160" alt="out" src="https://github.com/user-attachments/assets/a0b4dc51-b7be-4c58-8a60-80265f74374c" />
-
-3. Встроенное и декодированные сообщение можно посмотреть в файле big_secret.txt.
-4. Различия в ДКП картинки до и после встравания сообщения:
-  - <img width="3840" height="2160" alt="out_dct_before" src="https://github.com/user-attachments/assets/5c1d9037-44fd-4f57-b995-96177d8ea044" />
-  - <img width="3840" height="2160" alt="out_dct_after" src="https://github.com/user-attachments/assets/6a9bf481-f526-4362-8b73-c825e9a78494" />
-  - <img width="3840" height="2160" alt="out_dct_delta" src="https://github.com/user-attachments/assets/dbe311bd-1461-4239-94f6-f4be4f4aa07b" />
+4. Встроенное и декодированные сообщение: (файл resuls_lsb_img_big_secret.txt)
+5. Отличия картинок (тепловая карта): <p align="center"> <img width="800" src="https://github.com/Dzagcoffee/st3g4n0/blob/main/output_data/dct_gs_img/diff_heatmap.png"/> </p>
+6. Отличия в выходах ДКП:
+   - До: <p align="center"> <img width="520" src="https://github.com/Dzagcoffee/st3g4n0/blob/main/output_data/dct_gs_img/stego_dct_before.png"/> </p>
+   - После: <p align="center"> <img width="520" src="https://github.com/Dzagcoffee/st3g4n0/blob/main/output_data/dct_gs_img/stego_dct_after.png"/> </p>
+   - Отличия: <p align="center"> <img width="520" src="https://github.com/Dzagcoffee/st3g4n0/blob/main/output_data/dct_gs_img/stego_dct_diff.png"/> </p>
   
 ---
 
 ### Встраивание в аудио
+Встраивание:
 ```bash
-python src/st3g4n0_lsb_snd.py encode -i input_data/KINO.wav -o output_data/stego.wav -m input_data/small_secret.txt
-python src/st3g4n0_lsb_snd.py decode -i output_data/stego.wav -o output_data/result.txt
+python src/st3g4n0_lsb_snd.py encode -i input_data/KINO.wav -o output_data/lsb_snd/after.png -m input_data/small_secret.txt
+```
+
+Извлечение:
+```bash
+python src/st3g4n0_lsb_img.py decode -i output_data/lsb_snd/after.png -o output_data/resuls_lsb_snd_small_secret.txt
 ```
 
 ---
