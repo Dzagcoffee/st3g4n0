@@ -47,8 +47,5 @@ def compare_images(cover_path, stego_path, diff_out="diff_map.png"):
     plt.tight_layout()
     plt.show()
 
-    Image.fromarray(diff_map).save(diff_out)
-    print(f"Карта различий сохранена: {diff_out}")
 
-
-compare_images("./input_data/img.png", "./output_data/output.png")
+compare_images("./output_data/dct_gs_img/before.png", "./output_data/dct_gs_img/after.png")
