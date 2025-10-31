@@ -62,17 +62,17 @@ def decode(stego_wav, output_path):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="LSB Matching стеганография для аудио (WAV)")
+    parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest='cmd', required=True)
 
-    enc = subparsers.add_parser('encode', help='Встроить сообщение в WAV')
-    enc.add_argument('-i', '--input', required=True, help='Путь к исходному WAV')
-    enc.add_argument('-o', '--output', required=True, help='Путь к выходному WAV')
-    enc.add_argument('-m', '--message', required=True, help='Файл с сообщением (текст/бинарный)')
+    enc = subparsers.add_parser('encode')
+    enc.add_argument('-i', '--input', required=True)
+    enc.add_argument('-o', '--output', required=True)
+    enc.add_argument('-m', '--message', required=True)
 
-    dec = subparsers.add_parser('decode', help='Извлечь сообщение из WAV')
-    dec.add_argument('-i', '--input', required=True, help='Путь к стего WAV')
-    dec.add_argument('-o', '--output', required=True, help='Файл для сохранения результата')
+    dec = subparsers.add_parser('decode')
+    dec.add_argument('-i', '--input', required=True)
+    dec.add_argument('-o', '--output', required=True)
 
     args = parser.parse_args()
 

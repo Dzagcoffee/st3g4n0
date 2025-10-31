@@ -1,126 +1,156 @@
-#!/usr/bin/env python3
-
 import cv2
 import numpy as np
 import argparse
+import struct
 
-def _dct_map(img_gray: np.ndarray) -> np.ndarray:
-    f32 = img_gray.astype(np.float32)
-    dct = cv2.dct(f32)
-    mag = np.log1p(np.abs(dct))
-    mag -= mag.min()
-    if mag.max() > 0:
-        mag /= mag.max()
-    return (mag * 255).astype(np.uint8)
 
-def _save_viz(before_gray: np.ndarray, after_gray: np.ndarray, out_prefix: str):
-    dct_before = _dct_map(before_gray)
-    dct_after  = _dct_map(after_gray)
+UV = (4, 3)
+MIN_AMP = 3.0
+BLOCK_SIZE = 8
+VIZ = True
 
-    delta = cv2.absdiff(dct_before, dct_after)
 
-    cv2.imwrite(f"{out_prefix}_dct_before.png", dct_before)
-    cv2.imwrite(f"{out_prefix}_dct_after.png",  dct_after)
-    cv2.imwrite(f"{out_prefix}_dct_delta.png",  delta)
+def bytes_to_bits(b: bytes) -> str:
+    return ''.join(f'{x:08b}' for x in b)
 
-def embed_dct(cover_path: str, secret_path: str, output_path: str, viz: bool = False):
-    cover = cv2.imread(cover_path, cv2.IMREAD_GRAYSCALE)
-   
-    if cover is None:
-        raise FileNotFoundError(f"Unable to open {cover_path}")
+def bits_to_bytes(bits: str) -> bytes:
+    L = (len(bits) // 8) * 8
+    
+    return bytes(int(bits[i:i+8], 2) for i in range(0, L, 8))
 
-    msg = open(secret_path, 'rb').read()
-    bits = ''.join(format(b, '08b') for b in msg) + '00000000'
+def dct_map(img: np.ndarray) -> np.ndarray:
+    d = cv2.dct(img.astype(np.float32))
+    m = np.log1p(np.abs(d))
+    m = (m / (m.max() + 1e-8) * 255).astype(np.uint8)
+    
+    return m
 
-    h, w = cover.shape
-    H, W = (h // 8) * 8, (w // 8) * 8
-    base = cover[:H, :W].astype(np.float32).copy()
+def save_viz(before: np.ndarray, after: np.ndarray, prefix: str):
+    before_map = dct_map(before)
+    after_map = dct_map(after)
+    diff = cv2.absdiff(before_map, after_map)
+    
+    cv2.imwrite(prefix + "_dct_before.png", before_map)
+    cv2.imwrite(prefix + "_dct_after.png", after_map)
+    cv2.imwrite(prefix + "_dct_diff.png", diff)
+    
+    print("Сохранены DCT-карты:", prefix + "_dct_before.png", prefix + "_dct_after.png", prefix + "_dct_diff.png")
 
-    if viz:
-        before_gray = base.astype(np.uint8)
+def embed_sign(c: float, bit: int, min_amp: float) -> float:
+    a = abs(c)
 
-    bit_idx = 0
-    for i in range(0, H, 8):
-        for j in range(0, W, 8):
-            if bit_idx >= len(bits):
-                break
-            block = base[i:i+8, j:j+8]
-            dct = cv2.dct(block)
+    if a < min_amp:
+        a = min_amp
+    
+    return a if bit == 0 else -a
 
-            u, v = 4, 3
-            coeff = dct[u, v]
-            bit = int(bits[bit_idx])
+def extract_sign(c: float) -> int:
+    return 0 if c >= 0 else 1
 
-            ival = int(np.round(coeff))
-            if (abs(ival) % 2) != bit:
-                if ival >= 0:
-                    ival += 1
-                else:
-                    ival -= 1
-            dct[u, v] = float(ival)
 
-            base[i:i+8, j:j+8] = cv2.idct(dct)
-            bit_idx += 1
-        if bit_idx >= len(bits):
-            break
-
-    stego = np.clip(base, 0, 255).astype(np.uint8)
-    out = cover.copy()
-    out[:H, :W] = stego
-    cv2.imwrite(output_path, out)
-    print(f"Сообщение ({len(msg)} байт) встроено в {output_path}")
-
-    if viz:
-        _save_viz(before_gray, out[:H, :W], output_path.rsplit('.', 1)[0])
-
-def extract_dct(stego_path: str, output_path: str):
-    img = cv2.imread(stego_path, cv2.IMREAD_GRAYSCALE)
+def encode(input_path: str, output_path: str, message_path: str):
+    img = cv2.imread(input_path, cv2.IMREAD_GRAYSCALE)
+    
     if img is None:
-        raise FileNotFoundError(f"Unable to open {stego_path}")
+        raise FileNotFoundError(f"Не удалось открыть {input_path}")
+
+    try:
+        with open(message_path, 'r', encoding='windows-1251') as f:
+            msg = f.read().encode('windows-1251')
+    except Exception:
+        with open(message_path, 'rb') as f:
+            msg = f.read()
+
+    header = struct.pack('<I', len(msg))
+    data = header + msg
+    bits = bytes_to_bits(data)
 
     h, w = img.shape
-    H, W = (h // 8) * 8, (w // 8) * 8
+    H, W = (h // BLOCK_SIZE) * BLOCK_SIZE, (w // BLOCK_SIZE) * BLOCK_SIZE
+    cover = img[:H, :W].astype(np.float32)
+    stego = cover.copy()
+
+    if VIZ:
+        before = cover.copy()
+
+    bit_idx = 0
+    total_bits = len(bits)
+
+    for i in range(0, H, BLOCK_SIZE):
+        for j in range(0, W, BLOCK_SIZE):
+            if bit_idx >= total_bits:
+                break
+    
+            block = cover[i:i+BLOCK_SIZE, j:j+BLOCK_SIZE]
+            dct = cv2.dct(block)
+            u, v = UV
+            b = int(bits[bit_idx])
+            dct[u, v] = embed_sign(dct[u, v], b, MIN_AMP)
+            stego[i:i+BLOCK_SIZE, j:j+BLOCK_SIZE] = cv2.idct(dct)
+            bit_idx += 1
+    
+        if bit_idx >= total_bits:
+            break
+
+    out_img = np.clip(stego, 0, 255).astype(np.uint8)
+    cv2.imwrite(output_path, out_img)
+    
+    print(f"Встроено {len(msg)} байт -> {output_path}")
+
+    if VIZ:
+        save_viz(before, stego, output_path.rsplit('.', 1)[0])
+
+
+def decode(input_path: str, output_path: str):
+    img = cv2.imread(input_path, cv2.IMREAD_GRAYSCALE)
+    if img is None:
+        raise FileNotFoundError(f"Не удалось открыть {input_path}")
+
+    h, w = img.shape
+    H, W = (h // BLOCK_SIZE) * BLOCK_SIZE, (w // BLOCK_SIZE) * BLOCK_SIZE
     region = img[:H, :W].astype(np.float32)
 
     bits = []
-    done = False
-    for i in range(0, H, 8):
-        for j in range(0, W, 8):
-            block = region[i:i+8, j:j+8]
+    for i in range(0, H, BLOCK_SIZE):
+        for j in range(0, W, BLOCK_SIZE):
+            block = region[i:i+BLOCK_SIZE, j:j+BLOCK_SIZE]
             dct = cv2.dct(block)
-            ival = int(np.round(dct[4, 3]))
-            bits.append(str(abs(ival) % 2))
-            if len(bits) >= 8 and bits[-8:] == ['0'] * 8:
-                bits = bits[:-8]
-                done = True
-                break
-        if done:
-            break
+            bits.append(str(extract_sign(dct[UV[0], UV[1]])))
 
-    data = bytes(int(''.join(bits[k:k+8]), 2) for k in range(0, len(bits), 8))
-    open(output_path, 'wb').write(data)
-    print(f"Извлечено {len(data)} байт → {output_path}")
+    data = bits_to_bytes(''.join(bits))
+    msg_len = struct.unpack('<I', data[:4])[0]
+    msg_data = data[4:4+msg_len]
+
+    with open(output_path, 'wb') as f:
+        f.write(msg_data)
+
+    print(f"Извлечено {len(msg_data)} байт → {output_path}")
+
+    try:
+        print("Сообщение (Windows-1251):", msg_data.decode('windows-1251'))
+    except UnicodeDecodeError:
+        print("Сообщение содержит бинарные данные или другую кодировку и не может быть отображено. Сообщение сохранено в файл.")
+
 
 def main():
-    ap = argparse.ArgumentParser(description="Стеганография через DCT (8x8) с визуализацией спектра")
+    ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest='cmd', required=True)
 
-    enc = sub.add_parser('encode', help='Встроить сообщение (DCT)')
-    enc.add_argument('-i', '--input', required=True, help='Путь к исходному изображению')
-    enc.add_argument('-o', '--output', required=True, help='Путь к выходному изображению')
-    enc.add_argument('-m', '--message', required=True, help='Файл с сообщением (текст/бинарный)')
-    enc.add_argument('--viz', action='store_true', help='Сохранить DCT-карты до/после и их разницу')
+    enc = sub.add_parser('encode')
+    enc.add_argument('-i', '--input', required=True)
+    enc.add_argument('-o', '--output', required=True)
+    enc.add_argument('-m', '--message', required=True)
 
-    dec = sub.add_parser('decode', help='Извлечь сообщение (DCT)')
-    dec.add_argument('-i', '--input', required=True, help='Путь к стего-изображению')
-    dec.add_argument('-o', '--output', required=True, help='Файл для сохранения результата')
+    dec = sub.add_parser('decode')
+    dec.add_argument('-i', '--input', required=True)
+    dec.add_argument('-o', '--output', required=True)
 
     args = ap.parse_args()
-
     if args.cmd == 'encode':
-        embed_dct(args.input, args.message, args.output, viz=args.viz)
+        encode(args.input, args.output, args.message)
     else:
-        extract_dct(args.input, args.output)
+        decode(args.input, args.output)
+
 
 if __name__ == '__main__':
     main()
