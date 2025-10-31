@@ -1,4 +1,4 @@
-# St3g4n0 — стеганография в изображениях и аудио
+# st3g4n0 — стеганография в изображениях и аудио
 
 Здесь показаны классические и современные методы сокрытия информации в данных: изображениях и аудиофайлах.
 
@@ -38,7 +38,7 @@ pip install -r requirements.txt
 
 ---
 
-## 🧩 Методы
+## Методы
 
 | Файл | Метод | Описание |
 |------|--------|-----------|
@@ -62,6 +62,16 @@ python src/st3g4n0_lsb_img.py encode -i input_data/img.png -o output_data/stego.
 python src/st3g4n0_lsb_img.py decode -i output_data/stego.png -o output_data/result.txt
 ```
 
+Для примера.
+1. Картинка ДО:
+<img width="3840" height="2160" alt="img" src="https://github.com/user-attachments/assets/c474e738-a401-4379-8429-e5f73eb26fb3" />
+
+
+2. Картинка ПОСЛЕ:
+<img width="3840" height="2160" alt="out" src="https://github.com/user-attachments/assets/636c3759-3d8e-42ce-94a8-5d9c5717fd87" />
+
+3. Встроенное и декодированные сообщение: Ask, and it shall be given you; seek, and ye shall find; knock, and it shall be opened unto you.
+
 ---
 
 ### Скрытие данных через DCT
@@ -70,6 +80,19 @@ python src/st3g4n0_dct_img.py encode -i input_data/img.png -o output_data/stego_
 python src/st3g4n0_dct_img.py decode -i output_data/stego_dct.png -o output_data/result.txt
 ```
 
+Для примера.
+1. Картинка ДО:
+<img width="3840" height="2160" alt="gs_img" src="https://github.com/user-attachments/assets/dda06e6f-f226-471a-8952-d8abc5533753" />
+
+2. Картинка ПОСЛЕ:
+<img width="3840" height="2160" alt="out" src="https://github.com/user-attachments/assets/a0b4dc51-b7be-4c58-8a60-80265f74374c" />
+
+3. Встроенное и декодированные сообщение можно посмотреть в файле big_secret.txt.
+4. Различия в ДКП картинки до и после встравания сообщения:
+  - <img width="3840" height="2160" alt="out_dct_before" src="https://github.com/user-attachments/assets/5c1d9037-44fd-4f57-b995-96177d8ea044" />
+  - <img width="3840" height="2160" alt="out_dct_after" src="https://github.com/user-attachments/assets/6a9bf481-f526-4362-8b73-c825e9a78494" />
+  - <img width="3840" height="2160" alt="out_dct_delta" src="https://github.com/user-attachments/assets/dbe311bd-1461-4239-94f6-f4be4f4aa07b" />
+  
 ---
 
 ### Встраивание в аудио
@@ -84,6 +107,7 @@ python src/st3g4n0_lsb_snd.py decode -i output_data/stego.wav -o output_data/res
 ```bash
 python src/st3g4n0_gan_img.py
 ```
+
 ---
 
 ### Анализ изменений
