@@ -66,11 +66,13 @@ python src/st3g4n0_lsb_img.py decode -i output_data/lsb_img/after.png -o output_
 Для примера.
 1. Картинка ДО:
 <p align="center"> <img width="800" src="https://github.com/Dzagcoffee/st3g4n0/blob/main/output_data/lsb_img/before.png"/> </p>
-3. Картинка ПОСЛЕ:
+
+2. Картинка ПОСЛЕ:
 <p align="center"> <img width="800" src="https://github.com/Dzagcoffee/st3g4n0/blob/main/output_data/lsb_img/after.png"/> </p>
 
-4. Встроенное и декодированные сообщение: (файл resuls_lsb_img_big_secret.txt)
-5. Отличия картинок (тепловая карта): <p align="center"> <img width="800" src="https://github.com/Dzagcoffee/st3g4n0/blob/main/output_data/lsb_img/diff_heatmap.png"/> </p>
+3. Встроенное и декодированные сообщение: (файл resuls_lsb_img_big_secret.txt)
+4. Отличия картинок (тепловая карта):
+<p align="center"> <img width="800" src="https://github.com/Dzagcoffee/st3g4n0/blob/main/output_data/lsb_img/diff_heatmap.png"/> </p>
 
 ---
 
@@ -88,15 +90,20 @@ python src/st3g4n0_lsb_img.py decode -i output_data/dct_gs_img/after.png -o outp
 Для примера.
 1. Картинка ДО:
 <p align="center"> <img width="800" src="https://github.com/Dzagcoffee/st3g4n0/blob/main/output_data/dct_gs_img/before.png"/> </p>
-3. Картинка ПОСЛЕ:
+
+2. Картинка ПОСЛЕ:
 <p align="center"> <img width="800" src="https://github.com/Dzagcoffee/st3g4n0/blob/main/output_data/dct_gs_img/after.png"/> </p>
 
-4. Встроенное и декодированные сообщение: (файл resuls_lsb_img_big_secret.txt)
-5. Отличия картинок (тепловая карта): <p align="center"> <img width="800" src="https://github.com/Dzagcoffee/st3g4n0/blob/main/output_data/dct_gs_img/diff_heatmap.png"/> </p>
-6. Отличия в выходах ДКП:
-   - До: <p align="center"> <img width="520" src="https://github.com/Dzagcoffee/st3g4n0/blob/main/output_data/dct_gs_img/stego_dct_before.png"/> </p>
-   - После: <p align="center"> <img width="520" src="https://github.com/Dzagcoffee/st3g4n0/blob/main/output_data/dct_gs_img/stego_dct_after.png"/> </p>
-   - Отличия: <p align="center"> <img width="520" src="https://github.com/Dzagcoffee/st3g4n0/blob/main/output_data/dct_gs_img/stego_dct_diff.png"/> </p>
+3. Встроенное и декодированные сообщение: (файл resuls_lsb_img_big_secret.txt)
+4. Отличия картинок (тепловая карта):
+   <p align="center"> <img width="800" src="https://github.com/Dzagcoffee/st3g4n0/blob/main/output_data/dct_gs_img/diff_heatmap.png"/> </p>
+5. Отличия в выходах ДКП:
+   - До:
+     <p align="center"> <img width="520" src="https://github.com/Dzagcoffee/st3g4n0/blob/main/output_data/dct_gs_img/stego_dct_before.png"/> </p>
+   - После:
+     <p align="center"> <img width="520" src="https://github.com/Dzagcoffee/st3g4n0/blob/main/output_data/dct_gs_img/stego_dct_after.png"/> </p>
+   - Отличия:
+     <p align="center"> <img width="520" src="https://github.com/Dzagcoffee/st3g4n0/blob/main/output_data/dct_gs_img/stego_dct_diff.png"/> </p>
   
 ---
 
